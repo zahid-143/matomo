@@ -80,7 +80,7 @@
         <div piwik-activity-indicator loading="site.isLoading"></div>
 
         <div ng-repeat="settingsPerPlugin in measurableSettings">
-            <div ng-repeat="setting in settingsPerPlugin.settings">
+            <div ng-repeat="setting in settingsPerPlugin.settings" ng-attr-id="{{ settingsPerPlugin.pluginName }}">
                 <div piwik-form-field="setting" all-settings="settingsPerPlugin.settings"></div>
             </div>
         </div>

@@ -7,9 +7,9 @@
 (function () {
     angular.module('piwikApp').controller('SitesManagerSiteController', SitesManagerSiteController);
 
-    SitesManagerSiteController.$inject = ['$scope', '$filter', 'sitesManagerApiHelper', 'sitesManagerTypeModel', 'piwikApi', '$timeout'];
+    SitesManagerSiteController.$inject = ['$scope', '$filter', 'sitesManagerApiHelper', 'sitesManagerTypeModel', 'piwikApi', '$timeout', 'piwik'];
 
-    function SitesManagerSiteController($scope, $filter, sitesManagerApiHelper, sitesManagerTypeModel, piwikApi, $timeout) {
+    function SitesManagerSiteController($scope, $filter, sitesManagerApiHelper, sitesManagerTypeModel, piwikApi, $timeout, piwik) {
 
         var translate = $filter('translate');
 
@@ -18,6 +18,13 @@
                 $('.editingSite').find('select').material_select();
                 Materialize.updateTextFields();
             });
+
+            var editsiteid = broadcast.getValueFromUrl('editsiteid');
+            if (editsiteid && editsiteid == $scope.site.idsite) {
+                $timeout(function () {
+                    piwik.helper.lazyScrollTo('#SEOWebVitals', 250);
+                }, 500);
+            }
         }
 
         var init = function () {
@@ -42,6 +49,11 @@
                     $scope.currentType = {name: $scope.site.type};
                 }
             });
+
+            var editsiteid = broadcast.getValueFromUrl('editsiteid');
+            if (editsiteid && editsiteid == $scope.site.idsite) {
+                editSite();
+            }
         };
 
         var initActions = function () {
