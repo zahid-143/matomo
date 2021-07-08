@@ -10,7 +10,8 @@ services:
       - ./nginx-default.conf:/etc/nginx/sites-available/default
     environment:
       - "TZ=Pacific/Auckland"
-      - "USER=33"
+      - "USER=1000"
+    command: "bash -c 'cd /var/www/html; composer install; chown -R www-data:www-data /var/www/html; service php7.4-fpm start; service nginx start; while true; do sleep 3600; done'"
   mariadb:
     image: mariadb:10.4
     ports:
