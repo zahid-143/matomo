@@ -13,11 +13,14 @@ services:
       - "USER=1000"
     command: "bash -c 'cd /var/www/html; composer install; chown -R www-data:www-data /var/www/html; service php7.4-fpm start; service nginx start; while true; do sleep 3600; done'"
   mariadb:
-    image: mariadb:10.4
+    image: mariadb:10.6.3
+#    image: ubuntu:20.04
     ports:
       - 3306:3306
     environment:
       - MARIADB_ROOT_PASSWORD=root
+    privileged: true
+#    command: "bash -c 'while true; do sleep 3600; done'"
 configs:
   my_config:
     file: ./my_config.txt
