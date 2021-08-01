@@ -405,11 +405,13 @@ class FrontController extends Singleton
             $authAdapter = $this->makeAuthenticator();
             $success = Access::getInstance()->reloadAccess($authAdapter);
 
-            if ($success
+            if (
+                $success
                 && Piwik::isUserIsAnonymous()
                 && $authAdapter->getLogin() === 'anonymous' //double checking the login
                 && Piwik::isUserHasSomeViewAccess()
-                && Session::isSessionStarted()) { // only if session was started, don't do it eg for API
+                && Session::isSessionStarted()
+            ) { // only if session was started, don't do it eg for API
                 // usually the session would be started when someone logs in using login controller. But in this
                 // case we need to init session here for anoynymous users
                 $init = StaticContainer::get(SessionInitializer::class);
@@ -428,7 +430,7 @@ class FrontController extends Singleton
         if (Common::getRequestVar('token_auth', '', 'string') !== ''
             && Request::shouldReloadAuthUsingTokenAuth(null)
         ) {
-            Request::reloadAuthUsingTokenAuth();
+            Request::reloadAuthUsingTokenAuth($_REQUEST);
             Request::checkTokenAuthIsNotLimited($module, $action);
         }
 

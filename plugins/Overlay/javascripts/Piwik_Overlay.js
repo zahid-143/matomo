@@ -15,6 +15,9 @@ var Piwik_Overlay = (function () {
         'Overlay.getFollowingPages',
     ];
 
+    var search = document.location.search;
+    var urlParams = new URLSearchParams(search);
+    var tokenAuth = urlParams.get('token_auth');
     var $body, $iframe, $sidebar, $main, $location, $loading, $errorNotLoading;
     var $rowEvolutionLink, $transitionsLink, $visitorLogLink;
 
@@ -40,7 +43,8 @@ var Piwik_Overlay = (function () {
         var params = {
             module: 'Overlay',
             action: 'renderSidebar',
-            currentUrl: currentUrl
+            currentUrl: currentUrl,
+            force_api_session: true
         };
 
         if (segment) {
@@ -50,6 +54,9 @@ var Piwik_Overlay = (function () {
         globalAjaxQueue.abort();
         var ajaxRequest = new ajaxHelper();
         ajaxRequest.addParams(params, 'get');
+        ajaxRequest.addParams({
+            token_auth: tokenAuth
+        }, 'post');
         ajaxRequest.setCallback(
             function (response) {
                 hideLoading();
@@ -259,7 +266,7 @@ var Piwik_Overlay = (function () {
 
         /** This method is called when Overlay loads  */
         init: function (iframeSrc, pIdSite, pPeriod, pDate, pSegment) {
-            iframeSrcBase = iframeSrc;
+            iframeSrcBase = iframeSrc + '&force_api_session=1&token_auth=' + tokenAuth;
             idSite = pIdSite;
             period = pPeriod;
             date = pDate;

@@ -524,7 +524,10 @@ var broadcast = {
         var urlStr = $window.location.hash;
         urlStr = broadcast.updateParamValue('popover=' + encodeURIComponent(popover), urlStr);
         urlStr = urlStr.replace(/^[#?]+/, '');
-        $location.search(urlStr);
+        var search = document.location.search;
+        var urlParams = new URLSearchParams(search);
+        var tokenAuth = urlParams.get('token_auth');
+        $location.search(urlStr + '&token_auth=' + tokenAuth);
 
         setTimeout(function () {
             angular.element(document).injector().get('$rootScope').$apply();

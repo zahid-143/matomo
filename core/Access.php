@@ -15,6 +15,7 @@ use Piwik\Access\RolesProvider;
 use Piwik\Container\StaticContainer;
 use Piwik\Plugins\SitesManager\API as SitesManagerApi;
 use Piwik\Session\SessionAuth;
+use Piwik\Session\SessionFingerprint;
 
 /**
  * Singleton that manages user access to Piwik resources.
@@ -96,10 +97,16 @@ class Access
      */
     private $roleProvider;
 
+    private SessionFingerPrint $sessionFingerPrint;
+
     /**
      * Constructor
      */
-    public function __construct(RolesProvider $roleProvider = null, CapabilitiesProvider $capabilityProvider = null)
+    public function __construct(
+        RolesProvider $roleProvider = null,
+        CapabilitiesProvider $capabilityProvider = null,
+        SessionFingerprint $sessionFingerprint = null
+    )
     {
         if (!isset($roleProvider)) {
             $roleProvider = StaticContainer::get('Piwik\Access\RolesProvider');
@@ -109,6 +116,7 @@ class Access
         }
         $this->roleProvider = $roleProvider;
         $this->capabilityProvider = $capabilityProvider;
+        $this->sessionFingerPrint = $sessionFingerprint ?? new SessionFingerprint();
 
         $this->resetSites();
     }
@@ -157,15 +165,15 @@ class Access
 
         $result = null;
 
-        $forceApiSessionPost = Common::getRequestVar('force_api_session', 0, 'int', $_POST);
-        $forceApiSessionGet = Common::getRequestVar('force_api_session', 0, 'int', $_GET);
         $isApiRequest = Piwik::getModule() === 'API' && (Piwik::getAction() === 'index' || !Piwik::getAction());
         $apiMethod = Request::getMethodIfApiRequest(null);
         $isGetApiRequest = 1 === substr_count($apiMethod, '.') && strpos($apiMethod, '.get') > 0;
 
-        if (($forceApiSessionPost && $isApiRequest) || ($forceApiSessionGet && $isApiRequest && $isGetApiRequest)) {
-            $request = ($forceApiSessionGet && $isApiRequest && $isGetApiRequest) ? $_GET : $_POST;
-            $tokenAuth = Common::getRequestVar('token_auth', '', 'string', $request);
+        $forceApiSession = Common::getRequestVar('force_api_session', 0, 'int', $_REQUEST);
+        // Overlay may not be an API request
+        $tokenAuth = Common::getRequestVar('token_auth', '', 'string', $_REQUEST);
+
+        if ($tokenAuth || ($forceApiSession && $isApiRequest)) {
             Session::start();
             $auth = StaticContainer::get(SessionAuth::class);
             $auth->setTokenAuth($tokenAuth);
@@ -177,8 +185,10 @@ class Access
                  * @internal
                  */
                 Piwik::postEvent('API.Request.authenticate.failed');
+                Session::close();
+            } else {
+                $this->sessionFingerPrint->updateSessionExpirationTime();
             }
-            Session::close();
             // if not successful, we will fallback to regular auth
         }
 
@@ -768,4 +778,5 @@ class Access
     {
         return !empty($this->login);
     }
+
 }
