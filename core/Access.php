@@ -97,7 +97,10 @@ class Access
      */
     private $roleProvider;
 
-    private SessionFingerPrint $sessionFingerPrint;
+    /**
+     * @var SessionFingerprint
+     */
+    private $sessionFingerPrint;
 
     /**
      * Constructor
@@ -114,9 +117,12 @@ class Access
         if (!isset($capabilityProvider)) {
             $capabilityProvider = StaticContainer::get('Piwik\Access\CapabilitiesProvider');
         }
+        if (!isset($sessionFingerprint)) {
+            $sessionFingerprint = StaticContainer::get('Piwik\Session\SessionFingerprint');
+        }
         $this->roleProvider = $roleProvider;
         $this->capabilityProvider = $capabilityProvider;
-        $this->sessionFingerPrint = $sessionFingerprint ?? new SessionFingerprint();
+        $this->sessionFingerPrint = $sessionFingerprint;
 
         $this->resetSites();
     }

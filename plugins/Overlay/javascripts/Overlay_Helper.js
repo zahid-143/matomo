@@ -28,7 +28,7 @@ var Overlay_Helper = {
         }
 
         var token_auth = piwik.broadcast.getValueFromUrl("token_auth");
-        if (token_auth.length && piwik.shouldPropagateTokenAuth) {
+        if (token_auth.length) {
             url += '&force_api_session=1&token_auth='  + encodeURIComponent(token_auth);
         }
 

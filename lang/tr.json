@@ -16,6 +16,7 @@
         "Apply": "Uygula",
         "ArchivingInlineHelp": "Orta ve yüksek yoğunluklu web siteleri için Matomo arşivlemesinin web tarayıcı üzerinden tetiklenme seçeneğinin kapatılması öneriilir. Bunun yerine saatlik olarak Matomo raporlarını oluşturacak zamanlanmış bir görevin tanımlanması önerilir.",
         "ArchivingTriggerDescription": "Daha büyük Matomo kurulumları için raporları otomatik olarak işleyen bir %1$szamanlanmış görev%2$s oluşturulması önerilir.",
+        "ArchivingTriggerSegment": "Özel dilimlerin kullanılması arşivlerin işlenmesini tetikler.",
         "AuthenticationMethodSmtp": "SMTP kimlik doğrulama yöntemi",
         "AverageOrderValue": "Ortalama Sipariş Değeri",
         "AveragePrice": "Ortalama Fiyat",
@@ -176,6 +177,8 @@
         "ExceptionDatabaseVersion": "%1$s sürümünüz %2$s ancak Matomo için en az %3$s sürümü gerekli.",
         "ExceptionDatabaseVersionNewerThanCodebase": "Matomo uygulamanız eski %1$s sürümü üzerinde çalışıyor ancak Matomo veritabanının daha yeni %2$s sürümüne güncellenmiş.",
         "ExceptionDatabaseVersionNewerThanCodebaseWait": "Matomo yöneticileriniz şu anda güncelleme işlemini tamamlıyor olabilir. Lütfen bir kaç dakika sonra yeniden deneyin.",
+        "ExceptionDatabaseUnavailable": "MySQL sunucusu erişilemez oldu",
+        "ExceptionDatabaseAccess": "Vertiabanı erişimi reddedildi",
         "ExceptionFileIntegrity": "Bütünlük sağlanamadı: %s",
         "ExceptionFilesizeMismatch": "Dosya boyutu uyumsuz: %1$s (Beklenen Boyut: %2$s, Bulunan: %3$s)",
         "ExceptionIncompatibleClientServerVersions": "%1$s istemci sürümünüz %2$s. Ancak bu sürüm %3$s sunucu sürümü ile uyumsuz.",
@@ -524,7 +527,8 @@
         "Custom": "Özel",
         "PreviousPeriod": "Önceki Dönem",
         "PreviousYear": "Önceki Yıl",
-        "ViewAccessRequired": "Kullanılan kimlik doğrulama kodunun (token_auth) erişim izinleri, API dışı bir istek adresinde kullanılmak için çok fazla. Lütfen yalnız görüntüleme erişimi olan bir kullanıcı için uygulamaya özel bir parola kullanın."
+        "ViewAccessRequired": "Kullanılan kimlik doğrulama kodunun (token_auth) erişim izinleri, API dışı bir istek adresinde kullanılmak için çok fazla. Lütfen yalnız görüntüleme erişimi olan bir kullanıcı için uygulamaya özel bir parola kullanın.",
+        "Reasons": "Nedenler"
     },
     "Mobile": {
         "AboutPiwikMobile": "Matomo Mobil Hakkında",
