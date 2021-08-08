@@ -453,6 +453,7 @@ PageRenderer.prototype._setupWebpageEvents = function () {
             return arg;
         }, arg)));
         const message = args.join(' ');
+        console.log(message);
         this._logMessage(`Log: ${message}`);
     });
 

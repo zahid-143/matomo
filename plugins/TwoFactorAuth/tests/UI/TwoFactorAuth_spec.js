@@ -7,7 +7,7 @@
  * @license http://www.gnu.org/licenses/gpl-3.0.html GPL v3 or later
  */
 
-describe("TwoFactorAuth", function () {
+describe.only("TwoFactorAuth", function () {
     this.timeout(0);
 
     this.fixture = "Piwik\\Plugins\\TwoFactorAuth\\tests\\Fixtures\\TwoFactorFixture";
@@ -125,13 +125,16 @@ describe("TwoFactorAuth", function () {
             document.querySelector('.loginTwoFaForm #login_form_submit').click();
         });
         await page.waitForNetworkIdle();
+        await page.evaluate(function () {
+            console.log(document.body.innerHTML);
+        });
         await page.waitFor('.widget');
         await page.waitForNetworkIdle();
 
         const element = await page.$('.pageWrap');
         expect(await element.screenshot()).to.matchImage('logme_verified');
     });
-
+return;
     it('should show user settings when two-fa enabled', async function () {
         await loginUser('with2FA');
         await page.goto(userSettings);
