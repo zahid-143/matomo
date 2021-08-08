@@ -71,6 +71,8 @@ class TestsRunUI extends ConsoleCommand
         $options = array();
         $phantomJsOptions = array();
 
+        $specs = ['TwoFactorAuth'];
+
         if ($matomoDomain) {
             $options[] = "--matomo-domain=$matomoDomain";
         }
