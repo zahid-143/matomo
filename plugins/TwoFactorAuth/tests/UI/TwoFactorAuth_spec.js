@@ -134,7 +134,7 @@ describe("TwoFactorAuth", function () {
         const element = await page.$('.pageWrap');
         expect(await element.screenshot()).to.matchImage('logme_verified');
     });
-return;
+
     it('should show user settings when two-fa enabled', async function () {
         await loginUser('with2FA');
         await page.goto(userSettings);
