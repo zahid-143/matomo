@@ -12,6 +12,7 @@ namespace Piwik;
 use Exception;
 use Piwik\API\Request;
 use Piwik\Container\StaticContainer;
+use Piwik\DataTable\Manager;
 use Piwik\Exception\AuthenticationFailedException;
 use Piwik\Exception\DatabaseSchemaIsNewerThanCodebaseException;
 use Piwik\Exception\PluginDeactivatedException;
@@ -253,6 +254,8 @@ class FrontController extends Singleton
 
     public static function triggerSafeModeWhenError()
     {
+        Manager::getInstance()->deleteAll();
+
         $lastError = error_get_last();
 
         if (!empty($lastError) && isset(self::$requestId)) {
@@ -409,7 +412,8 @@ class FrontController extends Singleton
                 && Piwik::isUserIsAnonymous()
                 && $authAdapter->getLogin() === 'anonymous' //double checking the login
                 && Piwik::isUserHasSomeViewAccess()
-                && Session::isSessionStarted()) { // only if session was started, don't do it eg for API
+                && Session::isSessionStarted()
+                && Session::isWritable()) { // only if session was started and writable, don't do it eg for API
                 // usually the session would be started when someone logs in using login controller. But in this
                 // case we need to init session here for anoynymous users
                 $init = StaticContainer::get(SessionInitializer::class);

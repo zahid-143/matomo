@@ -4997,6 +4997,48 @@ if ($mysql) {
         tracker.forgetCookieConsentGiven();
     });
 
+    test("Test API - set cookie domain", function() {
+        expect(6);
+
+        var tracker = Piwik.getTracker();
+        var cookie_domain = tracker.getCookieDomain()
+        var test_domain = '.' + cookie_domain;
+
+        tracker.setCookieDomain(cookie_domain + '.broken.tld')
+        equal(tracker.getCookieDomain(), cookie_domain, "can't set a bad cookie domain" );
+
+        tracker.requireCookieConsent();
+        tracker.setCookieDomain(test_domain);
+        equal(tracker.getCookieDomain(), test_domain, "can set cookie domain after requireCookieConsent disables cookies" );
+
+        var interceptedMessages = testWithWrappedConsole(function () {
+            var tracker2 = Piwik.getTracker();
+
+            tracker2.setCookieDomain(window.location.hostname);
+        });
+
+        deepEqual(interceptedMessages, [], "no console logs should have been outputted when setting a correct cookie domain");
+
+        function testWithWrappedConsole(callback) {
+            var interceptedMessages = [];
+
+            try {
+                var originalConsoleError = console.error;
+                console.error = function catchConsoleError(message) {
+                    interceptedMessages.push(message);
+                };
+
+                callback();
+            } catch (e) {
+                console.error = originalConsoleError;
+                throw e;
+            }
+            console.error = originalConsoleError;
+
+            return interceptedMessages;
+        }
+    });
+
     test("Test API - optOut (via consent feature)", function () {
         expect(9);
 
