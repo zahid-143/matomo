@@ -5,13 +5,23 @@ services:
       context: .
     ports:
       - 80:80
+#      - 8010:8010
     volumes:
       - ./:/var/www/html
       - ./nginx-default.conf:/etc/nginx/sites-available/default
+      - ./ports.conf:/etc/apache2/ports.conf
+      - ./000-default.conf:/etc/apache2/sites-available/000-default.conf
     environment:
       - "TZ=Pacific/Auckland"
       - "USER=1000"
-    command: "bash -c 'cd /var/www/html; composer install; chown -R www-data:www-data /var/www/html; service php7.4-fpm start; service nginx start; while true; do sleep 3600; done'"
+    command: "bash -c 'cd /var/www/html; composer install; chown -R www-data:www-data /var/www/html; service php7.4-fpm start; service nginx start; service apache2 start; while true; do sleep 3600; done'"
+  php:
+    build:
+      context: ./php
+    ports:
+      - 8010:8010
+    volumes:
+      - ./:/usr/src/myapp
   mariadb:
     image: mariadb:10.6
 #    image: ubuntu:20.04

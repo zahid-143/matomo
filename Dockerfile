@@ -6,6 +6,12 @@ RUN apt update && apt install -y nginx php-fpm php-pdo php-pdo-mysql vim-gtk zsh
 RUN apt install -y php-gd php-xmlwriter php-mbstring php-curl php-zip php-xml
 RUN apt install -y curl
 RUN apt install -y mysql-client apg
+RUN apt install -y apache2 php libapache2-mod-php
+# RUN a2dismod mpm_prefork \
+#RUN apt-get install -y software-properties-common
+#RUN add-apt-repository -y ppa:ondrej/php
+# RUN apt update && apt install -y php-fpm php-pdo php-pdo-mysql php-gd php-xmlwriter php-mbstring php-curl php-zip php-xml
+
 RUN curl -sS https://getcomposer.org/installer | php
 RUN chmod +x composer.phar; mv composer.phar /usr/local/bin/composer
 
