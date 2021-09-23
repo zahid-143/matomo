@@ -16,6 +16,8 @@
             </div>
         {% endif %}
         <div class="sparkline">
+            here
+            {{ dump(urlSparklineAvgVisitDuration) }}
             {{ sparkline(urlSparklineAvgVisitDuration)|raw }}
             {% set averageVisitDuration=averageVisitDuration|sumtime %}
             {{ 'VisitsSummary_AverageVisitDuration'|translate("<strong>"~averageVisitDuration~"</strong>")|raw }}
