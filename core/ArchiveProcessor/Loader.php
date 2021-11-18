@@ -153,6 +153,7 @@ class Loader
                 return $this->insertArchiveData($visits, $visitsConverted);
             } finally {
                 $lock->unlock();
+                session_destroy();
             }
         } else {
 
