@@ -959,12 +959,12 @@ class ReleaseCheckListTest extends \PHPUnit\Framework\TestCase
             'node_modules/jquery.scrollto/demo',
             'node_modules/jquery.scrollto/tests',
 
-            'node_modules/materialize-css/Gruntfile.js',
-            'node_modules/materialize-css/extras',
-            'node_modules/materialize-css/js',
-            'node_modules/materialize-css/sass',
-            'node_modules/materialize-css/dist/js/materialize.js',
-            'node_modules/materialize-css/dist/css/materialize.css',
+            'node_modules/@materializecss/materialize/Gruntfile.js',
+            'node_modules/@materializecss/materialize/extras',
+            'node_modules/@materializecss/materialize/js',
+            'node_modules/@materializecss/materialize/sass',
+            'node_modules/@materializecss/materialize/dist/js/materialize.js',
+            'node_modules/@materializecss/materialize/dist/css/materialize.css',
 
             'node_modules/mousetrap/Gruntfile.js',
             'node_modules/mousetrap/mousetrap.js',
