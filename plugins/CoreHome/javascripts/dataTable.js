@@ -119,11 +119,20 @@ $.extend(DataTable.prototype, UIControl.prototype, {
     enableStickHead: function (domElem) {
       // Bind to the resize event of the window object
       $(window).on('resize', function () {
-        var tableScrollerWidth = $(domElem).find('.dataTableScroller').width();
-        var tableWidth = $(domElem).find('table').width();
-        if (tableScrollerWidth < tableWidth) {
-          $('.dataTableScroller').css('overflow-x', 'scroll');
+        var isChanged = false;
+        if($('.dataTableScroller').is(":visible")){
+            if (isChanged) {
+                var tableScrollerWidth = $(domElem).find('.dataTableScroller').width();
+                var tableWidth = $(domElem).find('table').width();
+                if (tableScrollerWidth < tableWidth) {
+                    $('.dataTableScroller').css('overflow-x', 'scroll');
+                }
+                clearInterval();
+            } else{
+
+            }
         }
+
         // Invoke the resize event immediately
       }).resize();
     },
