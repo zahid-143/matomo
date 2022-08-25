@@ -14,6 +14,9 @@ The Product Changelog at **[matomo.org/changelog](https://matomo.org/changelog)*
 * The javascript event `piwikPageChange`, which is triggered when a reporting page is loaded, has been renamed to `matomoPageChange`. Ensure to update your implementation if you rely on it.
 * Plugin names are now limited to 60 characters. If you used to have a plugin with a longer name, you might need to rename it.
 * The `instance_id` configuration does no longer support characters other than `a-z`, `0-9` and the special characters `.-_`. If the configured value contains other characters, they will be simply removed.
+* The Symfony Console dependency has been updated to version 5.4. Command classes might need to be adjusted so
+  * `execute()` method now need to return integers. We recommend using the class constants `SUCCESS` or `FAILURE` as return values.
+  * Various helpers like the `dialog` or `progress` helpers have been removed. Their usages need to be rewritten with newer helpers like `question`.
 
 ### New APIs
 
