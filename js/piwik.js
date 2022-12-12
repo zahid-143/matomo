@@ -3043,26 +3043,25 @@ if (typeof window.Matomo !== 'object') {
             }
 
             function injectBrowserFeaturesAndClientHints(request) {
-                // browser features
+                var i, appendix = '', bfAppendix = '';
                 var browserFeatures = detectBrowserFeatures();
+
                 for (i in browserFeatures) {
                     if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
-                        request += '&' + i + '=' + browserFeatures[i];
+                      bfAppendix += '&' + i + '=' + browserFeatures[i];
                     }
                 }
 
-                if (!clientHints) {
-                    return request;
+                if (clientHints) {
+                    appendix = '&uadata=' + encodeWrapper(windowAlias.JSON.stringify(clientHints));
                 }
-
-                var i, appendix = '&uadata=' + encodeWrapper(windowAlias.JSON.stringify(clientHints));
 
                 if (request instanceof Array) {
                     for (i = 0; i < request.length; i++) {
-                       request[i] += appendix;
+                       request[i] += appendix + bfAppendix;
                     }
                 } else {
-                    request += appendix;
+                    request += appendix + bfAppendix;
                 }
 
                 return request;
