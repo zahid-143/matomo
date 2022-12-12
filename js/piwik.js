@@ -3042,7 +3042,15 @@ if (typeof window.Matomo !== 'object') {
                 }
             }
 
-            function injectClientHints(request) {
+            function injectBrowserFeaturesAndClientHints(request) {
+                // browser features
+                var browserFeatures = detectBrowserFeatures();
+                for (i in browserFeatures) {
+                    if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
+                        request += '&' + i + '=' + browserFeatures[i];
+                    }
+                }
+
                 if (!clientHints) {
                     return request;
                 }
@@ -3097,8 +3105,8 @@ if (typeof window.Matomo !== 'object') {
              */
             function sendRequest(request, delay, callback) {
                 if (!clientHintsResolved) {
-                  clientHintsRequestQueue.push(request);
-                  return;
+                    clientHintsRequestQueue.push(request);
+                    return;
                 }
 
                 refreshConsentStatus();
@@ -3114,7 +3122,7 @@ if (typeof window.Matomo !== 'object') {
                         request += '&consent=1';
                     }
 
-                    request = injectClientHints(request);
+                    request = injectBrowserFeaturesAndClientHints(request);
 
                     makeSureThereIsAGapAfterFirstTrackingRequestToPreventMultipleVisitorCreation(function () {
                         if (configAlwaysUseSendBeacon && sendPostRequestViaSendBeacon(request, callback, true)) {
@@ -3188,7 +3196,7 @@ if (typeof window.Matomo !== 'object') {
 
                     var i = 0, bulk;
                     for (i; i < chunks.length; i++) {
-                        bulk = '{"requests":["?' + injectClientHints(chunks[i]).join('","?') + '"],"send_image":0}';
+                        bulk = '{"requests":["?' + injectBrowserFeaturesAndClientHints(chunks[i]).join('","?') + '"],"send_image":0}';
                         if (configAlwaysUseSendBeacon && sendPostRequestViaSendBeacon(bulk, null, false)) {
                             // makes sure to load the next page faster by not waiting as long
                             // we apply this once we know send beacon works
@@ -3250,15 +3258,19 @@ if (typeof window.Matomo !== 'object') {
                 detectClientHints(function() {
                     var i, requestType;
                     clientHintsResolved = true;
-                    for (i = 0; i < clientHintsRequestQueue.length; i++) {
-                        requestType = typeof clientHintsRequestQueue[i];
+
+                    // copy and clear queue before processing it to avoid further calls to
+                    // detectBrowserFeatures (in sendRequest) ending up in an endless loop
+                    var queueToProcess = clientHintsRequestQueue;
+                    clientHintsRequestQueue = [];
+                    for (i = 0; i < queueToProcess.length; i++) {
+                        requestType = typeof queueToProcess[i];
                         if (requestType === 'string') {
-                            sendRequest(clientHintsRequestQueue[i], configTrackerPause);
+                            sendRequest(queueToProcess[i], configTrackerPause);
                         } else if (requestType === 'object') {
-                            sendBulkRequest(clientHintsRequestQueue[i], configTrackerPause);
+                            sendBulkRequest(queueToProcess[i], configTrackerPause);
                         }
                     }
-                    clientHintsRequestQueue = [];
                 });
 
                 // Browser Feature is disabled return empty object
@@ -3925,14 +3937,6 @@ if (typeof window.Matomo !== 'object') {
                 for (i in referrerAttribution) {
                     if (Object.prototype.hasOwnProperty.call(referrerAttribution, i)) {
                         request += '&' + i + '=' + referrerAttribution[i];
-                    }
-                }
-
-                var browserFeatures = detectBrowserFeatures();
-                // browser features
-                for (i in browserFeatures) {
-                    if (Object.prototype.hasOwnProperty.call(browserFeatures, i)) {
-                        request += '&' + i + '=' + browserFeatures[i];
                     }
                 }
 
@@ -7221,7 +7225,7 @@ if (typeof window.Matomo !== 'object') {
             * Calling this method will remove any previously given consent and during this page view no request
             * will be sent anymore ({@link requireConsent()}) will be called automatically to ensure the removed
             * consent will be enforced. You may call this method if the user removes consent manually, or if you
-            * want to re-ask for consent after a specific time period. You can optionally define the lifetime of 
+            * want to re-ask for consent after a specific time period. You can optionally define the lifetime of
             * the CONSENT_REMOVED_COOKIE_NAME cookie in hours using a parameter.
             *
             * @param int hoursToExpire After how many hours the CONSENT_REMOVED_COOKIE_NAME cookie should expire.
