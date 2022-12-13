@@ -3101,7 +3101,7 @@ if (typeof window.Matomo !== 'object') {
              * Send request
              */
             function sendRequest(request, delay, callback) {
-                if (!clientHintsResolved && supportsClientHints()) {
+                if (configBrowserFeatureDetection && !clientHintsResolved && supportsClientHints()) {
                     clientHintsRequestQueue.push([request, callback]);
                     return;
                 }
@@ -3176,7 +3176,7 @@ if (typeof window.Matomo !== 'object') {
                     return;
                 }
 
-                if (!clientHintsResolved && supportsClientHints()) {
+                if (configBrowserFeatureDetection && !clientHintsResolved && supportsClientHints()) {
                     clientHintsRequestQueue.push([requests, null]);
                     return;
                 }
@@ -5159,7 +5159,13 @@ if (typeof window.Matomo !== 'object') {
                 asyncTrackers = [firstTracker];
             };
             this.getConsentRequestsQueue = function () {
-                return consentRequestsQueue;
+                var i, requests = [];
+
+                for (i=0; i < consentRequestsQueue.length; i++){
+                    requests.push(consentRequestsQueue[i][0]);
+                }
+
+                return requests;
             };
             this.getRequestQueue = function () {
                 return requestQueue;

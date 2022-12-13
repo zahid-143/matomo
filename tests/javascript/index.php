@@ -68,6 +68,9 @@ function getOptInToken() {
 function getAlwaysUseSendBeaconToken() {
     return "<?php $token = md5(uniqid(mt_rand(), true)); echo $token; ?>";
 }
+function getBrowserFeatureToken() {
+    return "<?php $token = md5(uniqid(mt_rand(), true)); echo $token; ?>";
+}
 <?php
 
 if ($mysql) {
@@ -5302,19 +5305,25 @@ if ($mysql) {
     test("Browser detector feature Disable and enable", function() {
         var pattern = /(res=)|(cookie=)/;
         var tracker = Piwik.getTracker();
+        tracker.setCustomData({ "token" : getBrowserFeatureToken() });
         var siteIdPattern = /idsite/;
 
         tracker.enableBrowserFeatureDetection();
-        var requestWithFingerprint = tracker.getRequest('hello=world');
-
-        equal(siteIdPattern.test(requestWithFingerprint), true);
-        equal(pattern.test(requestWithFingerprint), true, 'When browser fingerprint is enabled the request should include browser resolution or cookie');
+        tracker.trackPageView('hello=world');
 
         tracker.disableBrowserFeatureDetection();
-        var requestWithoutFingerprint = tracker.getRequest('hello=world');
+        tracker.trackPageView('hello=world');
 
-        equal(siteIdPattern.test(requestWithoutFingerprint), true);
-        equal(pattern.test(requestWithoutFingerprint), false, 'When browser fingerprint is disabled the request should not include browser resolution or cookie');
+        stop();
+        setTimeout(function() {
+            var results = fetchTrackedRequests(getBrowserFeatureToken(), true);
+            equal(siteIdPattern.test(results[0]), true);
+            equal(pattern.test(results[0]), true, 'When browser fingerprint is enabled the request should include browser resolution or cookie');
+
+            equal(siteIdPattern.test(results[1]), true);
+            equal(pattern.test(results[1]), false, 'When browser fingerprint is disabled the request should not include browser resolution or cookie');
+            start();
+        }, 2000);
     });
 
 <?php
