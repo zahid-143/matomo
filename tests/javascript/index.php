@@ -33,7 +33,7 @@ try {
 use \Piwik\Plugins\CustomJsTracker\TrackerUpdater;
 use \Piwik\Plugins\CustomJsTracker\TrackingCode\JsTestPluginTrackerFiles;
 
-$targetFileName = '/tests/resources/matomo2.test.js';
+$targetFileName = '/tests/resources/matomo.test.js';
 $sourceFile = PIWIK_DOCUMENT_ROOT . TrackerUpdater::DEVELOPMENT_PIWIK_JS;
 $targetFile = PIWIK_DOCUMENT_ROOT . $targetFileName;
 
@@ -5019,8 +5019,6 @@ if ($mysql) {
         ok(tracker.areCookiesEnabled(), 'by default cookies are enabled');
         tracker.requireConsent();
         ok(!tracker.areCookiesEnabled(), 'require consent disables cookies');
-
-
 
         ok(tracker.isConsentRequired(), 'consent is required after requiring it')
         deepEqual(tracker.getConsentRequestsQueue(), [], "getConsentRequestsQueue, still empty after requiring consent" );
