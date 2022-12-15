@@ -3071,6 +3071,11 @@ if (typeof window.Matomo !== 'object') {
             }
 
             function detectClientHints (callback) {
+                if (clientHintsResolved) {
+                    callback();
+                    return;
+                }
+
                 // Initialize with low entropy values that are always available
                 clientHints = {
                     brands: navigatorAlias.userAgentData.brands,
@@ -3091,8 +3096,10 @@ if (typeof window.Matomo !== 'object') {
                     }
 
                     clientHints = ua;
+                    clientHintsResolved = true;
                     callback();
                 }, function (message) {
+                    clientHintsResolved = true;
                     callback();
                 });
             }
@@ -3250,7 +3257,6 @@ if (typeof window.Matomo !== 'object') {
 
             function processClientHintsQueue () {
                 var i, requestType;
-                clientHintsResolved = true;
 
                 for (i = 0; i < clientHintsRequestQueue.length; i++) {
                     requestType = typeof clientHintsRequestQueue[i][0];
