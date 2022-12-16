@@ -2382,6 +2382,7 @@ if (typeof window.Matomo !== 'object') {
                 clientHints = {},
                 clientHintsRequestQueue = [],
                 clientHintsResolved = false,
+                clientHintsResolving = false,
 
                 // Keeps track of previously tracked content impressions
                 trackedContentImpressions = [],
@@ -3071,10 +3072,12 @@ if (typeof window.Matomo !== 'object') {
             }
 
             function detectClientHints (callback) {
-                if (clientHintsResolved) {
-                    callback();
+                if (clientHintsResolved || clientHintsResolving) {
+                    // skip if client hints were already resolved or a previous request already triggered it
                     return;
                 }
+
+                clientHintsResolving = true;
 
                 // Initialize with low entropy values that are always available
                 clientHints = {
@@ -3097,9 +3100,11 @@ if (typeof window.Matomo !== 'object') {
 
                     clientHints = ua;
                     clientHintsResolved = true;
+                    clientHintsResolving = false;
                     callback();
                 }, function (message) {
                     clientHintsResolved = true;
+                    clientHintsResolving = false;
                     callback();
                 });
             }
@@ -3108,14 +3113,14 @@ if (typeof window.Matomo !== 'object') {
              * Send request
              */
             function sendRequest(request, delay, callback) {
-                if (configBrowserFeatureDetection && !clientHintsResolved && supportsClientHints()) {
-                    clientHintsRequestQueue.push([request, callback]);
-                    return;
-                }
-
                 refreshConsentStatus();
                 if (!configHasConsent) {
                     consentRequestsQueue.push([request, callback]);
+                    return;
+                }
+
+                if (configBrowserFeatureDetection && !clientHintsResolved && supportsClientHints()) {
+                    clientHintsRequestQueue.push([request, callback]);
                     return;
                 }
 
@@ -3912,6 +3917,9 @@ if (typeof window.Matomo !== 'object') {
                 if (configDoNotTrack) {
                     return '';
                 }
+
+                // trigger detection of browser feature to ensure a request might not end up in the client hints queue without being processed
+                detectBrowserFeatures();
 
                 var cookieVisitorIdValues = getValuesFromVisitorIdCookie();
 
@@ -7303,6 +7311,11 @@ if (typeof window.Matomo !== 'object') {
             Matomo.addPlugin('TrackerVisitorIdCookie' + uniqueTrackerId, {
                 // if no tracking request was sent we refresh the visitor id cookie on page unload
                 unload: function () {
+                    if (supportsClientHints() && !clientHintsResolved) {
+                        clientHintsResolved = true;
+                        processClientHintsQueue(); // ensure possible queued request are sent out
+                    }
+
                     if (!hasSentTrackingRequestYet) {
                         setVisitorIdCookie();
                         // this will set the referrer attribution cookie

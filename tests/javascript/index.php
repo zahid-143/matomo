@@ -4214,10 +4214,10 @@ if ($mysql) {
 
         createdNewTracker.setCustomData({ "token" : getToken() });
         _paq.push(['trackPageView', 'twoTrackers']);
-        tracker.removeAllAsyncTrackersButFirst();
 
         stop();
         setTimeout(function() {
+            tracker.removeAllAsyncTrackersButFirst();
             xhr.open("GET", "matomo.php?requests=" + getToken(), false);
             xhr.send(null);
             results = xhr.responseText;
@@ -5011,7 +5011,6 @@ if ($mysql) {
 
         var queue;
         var tracker = Piwik.getTracker();
-        tracker.disableBrowserFeatureDetection(); // avoid client hint queue
         tracker.setCustomData('token', getConsentToken() + '1');
         deepEqual(tracker.getConsentRequestsQueue(), [], "getConsentRequestsQueue, by default is empty" );
         strictEqual(tracker.hasRememberedConsent(), false, "hasRememberedConsent, has no consent given by default" );
@@ -5027,58 +5026,62 @@ if ($mysql) {
         deepEqual(tracker.getConsentRequestsQueue(), [], "getConsentRequestsQueue, still empty after requiring consent" );
 
         tracker.trackRequest('myFoo=bar&baz=1');
-        queue = tracker.getConsentRequestsQueue();
-        strictEqual(1, queue.length, "getConsentRequestsQueue, did not execute tracking request when requiring consent but added this request to the queue" );
-        strictEqual(0, queue[0].indexOf('myFoo=bar&baz=1'), "getConsentRequestsQueue, the request contains the tracking request" );
-
-        tracker.trackRequest('myFoo=bar&baz=2');
-        queue = tracker.getConsentRequestsQueue();
-        strictEqual(2, queue.length, "getConsentRequestsQueue, did not execute tracking request again and added a second request to the queue" );
-        strictEqual(0, queue[1].indexOf('myFoo=bar&baz=2'), "getConsentRequestsQueue, the request contains the tracking request" );
-
-        tracker.setConsentGiven();
-        deepEqual(tracker.getConsentRequestsQueue(), [], "setConsentGiven, should reset queued requests" );
-        strictEqual(tracker.hasRememberedConsent(), false, "getConsentRequestsQueue, has not remembered consent" );
-        strictEqual(tracker.getRememberedConsent(), null, "getConsentRequestsQueue, does not return consent cookie content as no consent given" );
-
-        tracker.requireConsent();
-        ok(!tracker.areCookiesEnabled(), 'after requiring consent, cookies are disabled');
-        tracker.rememberConsentGiven();
-        ok(tracker.areCookiesEnabled(), 'remember cookie consent enables cookies');
-
-        strictEqual(tracker.hasRememberedConsent(), true, "rememberConsentGiven, sets cookie to remember consent" );
-        var rememberedConsent = tracker.getRememberedConsent();
-        strictEqual(String(rememberedConsent).length, 13, "getRememberedConsent, returns the data in milliseconds eg '1522200406749'" );
-        strictEqual(String(rememberedConsent).slice(0, 2), '16', "getRememberedConsent, starts with correct data" );
-
-        tracker.requireConsent();
-        strictEqual(tracker.hasConsent(), true, "when requiring consent, and we remembered consent, consent should be given" );
-
-        tracker.forgetConsentGiven();
-        strictEqual(tracker.hasConsent(), false, "forgetConsentGiven(), will remove remembered consent and require consent again" );
-        strictEqual(tracker.hasRememberedConsent(), false, "forgetConsentGiven, has forgotten consent" );
-        strictEqual(tracker.getRememberedConsent(), null, "forgetConsentGiven, has no longer a date for consent given stored" );
-
-        tracker.trackRequest('myFoo=bar&baz=3');
-
-        deleteCookies();
-
-        var tracker2 = Piwik.getTracker();
-        tracker2.setCustomData({ "token" : getConsentToken() + '2' });
-        tracker2.trackRequest('myFoo=bar&baz=3');
-
         stop();
+        // wait for client hints to be detected
         setTimeout(function() {
-            var results = fetchTrackedRequests(getConsentToken() + '1');
-            strictEqual(true, results.indexOf('myFoo=bar&baz=1') > 0, "setConsentGiven does replay all queued requests" );
-            strictEqual(true, results.indexOf('myFoo=bar&baz=2') > 0, "setConsentGiven does replay all queued requests" );
-            strictEqual(true, results.indexOf('ping=1') > 0, "setConsentGiven does replay all queued requests" );// sent when enabling cookies as part of setConsentGiven. Called twice in total
-            strictEqual(4, (results.match(/consent=1/g) || []).length, "consent=1 parameter appears in URL when explicit consent given");
+            queue = tracker.getConsentRequestsQueue();
+            strictEqual(1, queue.length, "getConsentRequestsQueue, did not execute tracking request when requiring consent but added this request to the queue" );
+            strictEqual(0, queue[0].indexOf('myFoo=bar&baz=1'), "getConsentRequestsQueue, the request contains the tracking request" );
 
-            var results2 = fetchTrackedRequests(getConsentToken() + '2');
-            strictEqual(true, results2.indexOf('myFoo=bar&baz=3') > 0, "normal request" );
-            strictEqual(0, (results2.match(/consent=1/g) || []).length, "consent=1 parameter not added when consent is assumed");
-            start();
+            tracker.trackRequest('myFoo=bar&baz=2');
+            queue = tracker.getConsentRequestsQueue();
+            strictEqual(2, queue.length, "getConsentRequestsQueue, did not execute tracking request again and added a second request to the queue" );
+            strictEqual(0, queue[1].indexOf('myFoo=bar&baz=2'), "getConsentRequestsQueue, the request contains the tracking request" );
+
+            tracker.setConsentGiven();
+            deepEqual(tracker.getConsentRequestsQueue(), [], "setConsentGiven, should reset queued requests" );
+            strictEqual(tracker.hasRememberedConsent(), false, "getConsentRequestsQueue, has not remembered consent" );
+            strictEqual(tracker.getRememberedConsent(), null, "getConsentRequestsQueue, does not return consent cookie content as no consent given" );
+
+            tracker.requireConsent();
+            ok(!tracker.areCookiesEnabled(), 'after requiring consent, cookies are disabled');
+            tracker.rememberConsentGiven();
+            ok(tracker.areCookiesEnabled(), 'remember cookie consent enables cookies');
+
+            strictEqual(tracker.hasRememberedConsent(), true, "rememberConsentGiven, sets cookie to remember consent" );
+            var rememberedConsent = tracker.getRememberedConsent();
+            strictEqual(String(rememberedConsent).length, 13, "getRememberedConsent, returns the data in milliseconds eg '1522200406749'" );
+            strictEqual(String(rememberedConsent).slice(0, 2), '16', "getRememberedConsent, starts with correct data" );
+
+            tracker.requireConsent();
+            strictEqual(tracker.hasConsent(), true, "when requiring consent, and we remembered consent, consent should be given" );
+
+            tracker.forgetConsentGiven();
+            strictEqual(tracker.hasConsent(), false, "forgetConsentGiven(), will remove remembered consent and require consent again" );
+            strictEqual(tracker.hasRememberedConsent(), false, "forgetConsentGiven, has forgotten consent" );
+            strictEqual(tracker.getRememberedConsent(), null, "forgetConsentGiven, has no longer a date for consent given stored" );
+
+            tracker.trackRequest('myFoo=bar&baz=3');
+
+            deleteCookies();
+
+            var tracker2 = Piwik.getTracker();
+            tracker2.disableBrowserFeatureDetection();
+            tracker2.setCustomData({ "token" : getConsentToken() + '2' });
+            tracker2.trackRequest('myFoo=bar&baz=3');
+
+            setTimeout(function() {
+                var results = fetchTrackedRequests(getConsentToken() + '1');
+                strictEqual(true, results.indexOf('myFoo=bar&baz=1') > 0, "setConsentGiven does replay all queued requests" );
+                strictEqual(true, results.indexOf('myFoo=bar&baz=2') > 0, "setConsentGiven does replay all queued requests" );
+                strictEqual(true, results.indexOf('ping=1') > 0, "setConsentGiven does replay all queued requests" );// sent when enabling cookies as part of setConsentGiven. Called twice in total
+                strictEqual(4, (results.match(/consent=1/g) || []).length, "consent=1 parameter appears in URL when explicit consent given");
+
+                var results2 = fetchTrackedRequests(getConsentToken() + '2');
+                strictEqual(true, results2.indexOf('myFoo=bar&baz=3') > 0, "normal request" );
+                strictEqual(0, (results2.match(/consent=1/g) || []).length, "consent=1 parameter not added when consent is assumed");
+                start();
+            }, 3000);
         }, 2000);
     });
 
@@ -5303,27 +5306,38 @@ if ($mysql) {
     });
 
     test("Browser detector feature Disable and enable", function() {
+        expect(9);
         var pattern = /(res=)|(cookie=)/;
+        var siteIdPattern = /idsite/;
         var tracker = Piwik.getTracker();
         tracker.setCustomData({ "token" : getBrowserFeatureToken() });
-        var siteIdPattern = /idsite/;
 
-        tracker.enableBrowserFeatureDetection();
-        tracker.trackPageView('hello=world');
-
-        tracker.disableBrowserFeatureDetection();
+        // browser feature should be enabled by default
         tracker.trackPageView('hello=world');
 
         stop();
         setTimeout(function() {
-            var results = fetchTrackedRequests(getBrowserFeatureToken(), true);
-            equal(siteIdPattern.test(results[0]), true);
-            equal(pattern.test(results[0]), true, 'When browser fingerprint is enabled the request should include browser resolution or cookie');
+            // wait till client hints were resolved
+            tracker.disableBrowserFeatureDetection();
+            tracker.trackPageView('hello=world');
 
-            equal(siteIdPattern.test(results[1]), true);
-            equal(pattern.test(results[1]), false, 'When browser fingerprint is disabled the request should not include browser resolution or cookie');
-            start();
-        }, 2000);
+            tracker.enableBrowserFeatureDetection();
+            tracker.trackPageView('hello=world');
+
+            setTimeout(function() {
+                // wait till client hints were resolved
+                var results = fetchTrackedRequests(getBrowserFeatureToken(), true);
+                ok(siteIdPattern.test(results[0]), 'Request should include idSite');
+                ok(pattern.test(results[0]), 'Browser features should be included by default');
+
+                ok(siteIdPattern.test(results[1]), 'Request should include idSite');
+                ok(!pattern.test(results[1]), 'Browser features should not be included when manually disabled');
+
+                ok(siteIdPattern.test(results[2]), 'Request should include idSite');
+                ok(pattern.test(results[2]), 'Browser features should be included again if enabled again');
+                start();
+            }, 1500);
+        }, 1500);
     });
 
 <?php
